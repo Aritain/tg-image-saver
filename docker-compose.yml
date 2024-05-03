@@ -1,0 +1,17 @@
+version: '2.4'
+
+services:
+  tg_image_saver:
+    build: 
+      context: ./
+      dockerfile: ./Dockerfile
+    image: tg_image_saver:latest
+    container_name: tg_image_saver
+    restart: always
+    logging:
+      driver: "json-file"
+    environment:
+        TG_TOKEN: "${TG_TOKEN}"
+        BOT_ADMIN: "${BOT_ADMIN}"
+    volumes:
+      - ./storage:/opt/tg_image_saver/storage
