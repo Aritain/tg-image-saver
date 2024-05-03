@@ -11,7 +11,6 @@ from app.helpers import (
     app_logger,
 )
 
-from telegram import error
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -27,7 +26,7 @@ def main():
 
     bot.add_handler(CommandHandler("get_random", get_random))
     bot.add_handler(CommandHandler("stats", stats))
-    bot.add_handler(MessageHandler(filters.PHOTO, save_image))  
+    bot.add_handler(MessageHandler(filters.PHOTO, save_image))
     bot.add_error_handler(error_handler)
 
     bot.run_polling()

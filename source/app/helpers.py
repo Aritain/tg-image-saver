@@ -20,7 +20,7 @@ app_logger = logging.getLogger('app_logger')
 
 async def delete_message(context, message, update):
     await asyncio.sleep(DELETE_TIMEOUT)
-    await context.bot.deleteMessage(message_id = message.message_id, chat_id = update.message.chat_id)
+    await context.bot.deleteMessage(message_id=message.message_id, chat_id=update.message.chat_id)
 
 
 def calc_bytes(size_in_bytes):
