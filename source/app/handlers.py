@@ -6,7 +6,7 @@ import os
 import os.path
 
 from telegram import Update
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, CallbackContext
 from .helpers import (
     app_logger,
     calc_bytes,
@@ -64,15 +64,27 @@ async def get_random(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Send random image from storage to user
     """
-    if update.message.chat.id != int(BOT_ADMIN):
+    user_id = update.message.chat.id
+    if user_id != int(BOT_ADMIN):
         return
 
     # Delete user command
     await context.bot.deleteMessage(message_id=update.message.id, chat_id=update.message.chat_id)
+
+    # Get random file and write it to 'cache' to prevent same files to be sent over and over
     files = os.listdir(STORAGE_DIR)
+    file_count = len(files)
+    if user_id in context.user_data:
+        files = [file for file in files if file not in context.user_data[user_id]]
     chosen_file = random.choice(files)
+    if user_id not in context.user_data:
+        context.user_data[user_id] = []
+    context.user_data[user_id].append(chosen_file)
+    if len(context.user_data[user_id]) == file_count:
+        context.user_data[user_id] = []
+
     message = await context.bot.send_photo(
-        chat_id=update.message.chat.id,
+        chat_id=user_id,
         photo=f'{STORAGE_DIR}{chosen_file}'
     )
 
@@ -83,3 +95,7 @@ async def get_random(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     app_logger.error("Exception while handling an update: %s", context.error)
     await asyncio.sleep(0)
+
+
+def clear_context_data(context: CallbackContext):
+    context.user_data.clear()
